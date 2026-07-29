@@ -1,3 +1,6 @@
+-- UBG STANDALONE — Kill Mob + Lag Server V3 (MOBILE VERSION)
+-- Botones táctiles: toca para activar/desactivar
+
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService        = game:GetService("RunService")
@@ -527,15 +530,6 @@ btnAutoFarm.MouseButton1Click:Connect(function()
         stopAutoFarm()
     end
     updateAutoFarmButton(AutoFarmEnabled)
-end)
-
--- También soporta toque directo (para mayor compatibilidad móvil)
-btnKillMob.TouchTap:Connect(function()
-    btnKillMob.MouseButton1Click:Fire()
-end)
-
-btnAutoFarm.TouchTap:Connect(function()
-    btnAutoFarm.MouseButton1Click:Fire()
 end)
 
 warn("Standalone Mobile cargado — Toca los botones para activar/desactivar")
