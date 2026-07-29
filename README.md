@@ -1,11 +1,10 @@
--- UBG STANDALONE — Kill Mob + Lag Server V3
--- Tecla 5: toggle ON/OFF ambos
--- UI: notificacion simple en pantalla
+-- UBG STANDALONE — Kill Mob + Lag Server V3 (MOBILE VERSION)
+-- Botones táctiles: toca para activar/desactivar
+-- UI: botones grandes para celular
 
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService        = game:GetService("RunService")
-local UserInputService  = game:GetService("UserInputService")
 local LocalPlayer       = Players.LocalPlayer
 
 -- =====================================================
@@ -41,69 +40,103 @@ task.spawn(function()
 end)
 
 -- =====================================================
--- UI SIMPLE (BillboardGui en ScreenGui)
+-- UI MOBILE (Botones táctiles grandes)
 -- =====================================================
 local ui = Instance.new("ScreenGui")
-ui.Name = "StandaloneUI"
+ui.Name = "StandaloneUI_Mobile"
 ui.ResetOnSpawn = false
 ui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 pcall(function() ui.Parent = game:GetService("CoreGui") end)
 if not ui.Parent then ui.Parent = LocalPlayer.PlayerGui end
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 60)
-frame.Position = UDim2.new(0.5, -100, 0, 10)
-frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-frame.BackgroundTransparency = 0.3
-frame.BorderSizePixel = 0
-frame.Parent = ui
+-- Frame principal
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 280, 0, 160)
+mainFrame.Position = UDim2.new(0.5, -140, 0, 10)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainFrame.BackgroundTransparency = 0.2
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = ui
 
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 6)
-corner.Parent = frame
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = mainFrame
 
-frame.Size = UDim2.new(0, 220, 0, 80)
+-- Padding
+local padding = Instance.new("UIPadding")
+padding.PaddingTop = UDim.new(0, 10)
+padding.PaddingBottom = UDim.new(0, 10)
+padding.PaddingLeft = UDim.new(0, 10)
+padding.PaddingRight = UDim.new(0, 10)
+padding.Parent = mainFrame
 
-local label = Instance.new("TextLabel")
-label.Size = UDim2.new(1, 0, 0.5, 0)
-label.Position = UDim2.new(0, 0, 0, 0)
-label.BackgroundTransparency = 1
-label.TextColor3 = Color3.fromRGB(255, 255, 255)
-label.TextSize = 13
-label.Font = Enum.Font.GothamBold
-label.Text = "⬛ [5] Kill Mob+Lag - OFF"
-label.Parent = frame
+-- Layout
+local layout = Instance.new("UIListLayout")
+layout.FillDirection = Enum.FillDirection.Vertical
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 10)
+layout.Parent = mainFrame
 
-local labelFarm = Instance.new("TextLabel")
-labelFarm.Size = UDim2.new(1, 0, 0.5, 0)
-labelFarm.Position = UDim2.new(0, 0, 0.5, 0)
-labelFarm.BackgroundTransparency = 1
-labelFarm.TextColor3 = Color3.fromRGB(255, 255, 255)
-labelFarm.TextSize = 13
-labelFarm.Font = Enum.Font.GothamBold
-labelFarm.Text = "⬛ [6] Auto Farm - OFF"
-labelFarm.Parent = frame
+-- BOTÓN 1: Kill Mob + Lag Server
+local btnKillMob = Instance.new("TextButton")
+btnKillMob.Name = "BtnKillMob"
+btnKillMob.Size = UDim2.new(1, 0, 0, 60)
+btnKillMob.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+btnKillMob.BorderSizePixel = 0
+btnKillMob.Text = "⬛ KILL MOB + LAG\n(OFF)"
+btnKillMob.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnKillMob.TextSize = 16
+btnKillMob.Font = Enum.Font.GothamBold
+btnKillMob.Parent = mainFrame
 
-local function setStatus(on)
+local corner1 = Instance.new("UICorner")
+corner1.CornerRadius = UDim.new(0, 8)
+corner1.Parent = btnKillMob
+
+-- BOTÓN 2: Auto Farm
+local btnAutoFarm = Instance.new("TextButton")
+btnAutoFarm.Name = "BtnAutoFarm"
+btnAutoFarm.Size = UDim2.new(1, 0, 0, 60)
+btnAutoFarm.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+btnAutoFarm.BorderSizePixel = 0
+btnAutoFarm.Text = "⬛ AUTO FARM\n(OFF)"
+btnAutoFarm.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnAutoFarm.TextSize = 16
+btnAutoFarm.Font = Enum.Font.GothamBold
+btnAutoFarm.Parent = mainFrame
+
+local corner2 = Instance.new("UICorner")
+corner2.CornerRadius = UDim.new(0, 8)
+corner2.Parent = btnAutoFarm
+
+-- Estado
+local Active = false
+local AutoFarmEnabled = false
+
+-- Funciones de actualización UI
+local function updateKillMobButton(on)
     if on then
-        label.Text = "🟢 [5] Kill Mob+Lag - ON"
-        label.TextColor3 = Color3.fromRGB(100, 255, 100)
+        btnKillMob.Text = "🟢 KILL MOB + LAG\n(ON)"
+        btnKillMob.BackgroundColor3 = Color3.fromRGB(0, 120, 60)
+        btnKillMob.TextColor3 = Color3.fromRGB(200, 255, 200)
     else
-        label.Text = "⬛ [5] Kill Mob+Lag - OFF"
-        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btnKillMob.Text = "⬛ KILL MOB + LAG\n(OFF)"
+        btnKillMob.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        btnKillMob.TextColor3 = Color3.fromRGB(255, 255, 255)
     end
 end
 
-local function setFarmStatus(on)
+local function updateAutoFarmButton(on)
     if on then
-        labelFarm.Text = "🟢 [6] Auto Farm - ON"
-        labelFarm.TextColor3 = Color3.fromRGB(100, 255, 100)
+        btnAutoFarm.Text = "🟢 AUTO FARM\n(ON)"
+        btnAutoFarm.BackgroundColor3 = Color3.fromRGB(0, 100, 120)
+        btnAutoFarm.TextColor3 = Color3.fromRGB(200, 255, 255)
     else
-        labelFarm.Text = "⬛ [6] Auto Farm - OFF"
-        labelFarm.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btnAutoFarm.Text = "⬛ AUTO FARM\n(OFF)"
+        btnAutoFarm.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        btnAutoFarm.TextColor3 = Color3.fromRGB(255, 255, 255)
     end
 end
-
 
 -- =====================================================
 -- MASS KILL (para AutoFarm)
@@ -215,7 +248,6 @@ local function stopAutoFarm()
         AutoFarm.wcConn = nil
     end
     AutoFarm.claimThread = nil
-    -- Restaurar camara
     pcall(function()
         local myChar = LocalPlayer.Character
         local hum = myChar and myChar:FindFirstChildOfClass("Humanoid")
@@ -387,35 +419,30 @@ local function startLagServer()
             end
         end)
 
-        -- Thread 1: Ability 4 A
         table.insert(LagServer.threads, task.spawn(function()
             while LagServer.enabled do
                 pcall(function() lagSpamAbility(4, getTargets()) end)
                 task.wait()
             end
         end))
-        -- Thread 2: Ability 4 B
         table.insert(LagServer.threads, task.spawn(function()
             while LagServer.enabled do
                 pcall(function() lagSpamAbility(4, getTargets()) end)
                 task.wait()
             end
         end))
-        -- Thread 3: Ability 3 A
         table.insert(LagServer.threads, task.spawn(function()
             while LagServer.enabled do
                 pcall(function() lagSpamAbility(3, getTargets()) end)
                 task.wait()
             end
         end))
-        -- Thread 4: Ability 3 B
         table.insert(LagServer.threads, task.spawn(function()
             while LagServer.enabled do
                 pcall(function() lagSpamAbility(3, getTargets()) end)
                 task.wait()
             end
         end))
-        -- Thread 5: Ability 1/2 alternando
         table.insert(LagServer.threads, task.spawn(function()
             local toggle = true
             while LagServer.enabled do
@@ -424,7 +451,6 @@ local function startLagServer()
                 task.wait(0.02)
             end
         end))
-        -- Thread 6: AbilityCanceled spam
         table.insert(LagServer.threads, task.spawn(function()
             while LagServer.enabled do
                 pcall(function()
@@ -436,7 +462,6 @@ local function startLagServer()
                 task.wait(0.02)
             end
         end))
-        -- Thread 7: WallCombo
         table.insert(LagServer.threads, task.spawn(function()
             while LagServer.enabled do
                 pcall(function()
@@ -458,7 +483,6 @@ local function startLagServer()
                 task.wait()
             end
         end))
-        -- Thread 8: Ability FireServer directo
         table.insert(LagServer.threads, task.spawn(function()
             while LagServer.enabled do
                 pcall(function()
@@ -477,16 +501,15 @@ end
 
 local function stopLagServer()
     LagServer.enabled = false
-    -- No usamos task.cancel -- los threads se detienen solos con la flag enabled=false
     LagServer.threads = {}
 end
 
 -- =====================================================
--- TOGGLE PRINCIPAL (tecla 5)
+-- CONEXIÓN DE BOTONES (TOQUE/CLICK)
 -- =====================================================
-local Active = false
 
-local function toggleAll()
+-- Botón Kill Mob + Lag
+btnKillMob.MouseButton1Click:Connect(function()
     Active = not Active
     if Active then
         KillMob.enabled = true
@@ -496,22 +519,27 @@ local function toggleAll()
         stopKillMob()
         stopLagServer()
     end
-    setStatus(Active)
-end
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.Five then
-        toggleAll()
-    elseif input.KeyCode == Enum.KeyCode.Six then
-        AutoFarm.enabled = not AutoFarm.enabled
-        if AutoFarm.enabled then
-            startAutoFarm()
-        else
-            stopAutoFarm()
-        end
-        setFarmStatus(AutoFarm.enabled)
-    end
+    updateKillMobButton(Active)
 end)
 
-warn("Standalone cargado — Tecla 5 para activar/desactivar")
+-- Botón Auto Farm
+btnAutoFarm.MouseButton1Click:Connect(function()
+    AutoFarmEnabled = not AutoFarmEnabled
+    if AutoFarmEnabled then
+        startAutoFarm()
+    else
+        stopAutoFarm()
+    end
+    updateAutoFarmButton(AutoFarmEnabled)
+end)
+
+-- También soporta toque directo (para mayor compatibilidad móvil)
+btnKillMob.TouchTap:Connect(function()
+    btnKillMob.MouseButton1Click:Fire()
+end)
+
+btnAutoFarm.TouchTap:Connect(function()
+    btnAutoFarm.MouseButton1Click:Fire()
+end)
+
+warn("Standalone Mobile cargado — Toca los botones para activar/desactivar")
