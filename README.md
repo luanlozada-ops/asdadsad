@@ -1,7 +1,3 @@
--- UBG STANDALONE — Kill Mob + Lag Server V3 (MOBILE VERSION)
--- Botones táctiles: toca para activar/desactivar
--- UI: botones grandes para celular
-
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService        = game:GetService("RunService")
